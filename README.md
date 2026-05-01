@@ -44,7 +44,6 @@ cloud-monitoring-project/
 ├── docker-compose.yml
 ├── prometheus.yml
 ├── README.md
-└── screenshots/ (optional)
 ```
 
 ---
