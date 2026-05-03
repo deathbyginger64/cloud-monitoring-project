@@ -8,7 +8,6 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)](https://prometheus.io/)
 [![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge)](LICENSE)
 [![Maintained](https://img.shields.io/badge/Maintained-Yes-22c55e?style=for-the-badge)]()
 
 <br/>
@@ -18,15 +17,6 @@
 <br/>
 
 </div>
-
-## 📸 Screenshots
-
-> Add your own screenshots to a `screenshots/` folder in the repo and update the paths below.
-
-| Prometheus Targets | Grafana Dashboard | Telegram Alert |
-|:-:|:-:|:-:|
-| ![Prometheus](screenshots/prometheus-targets.png) | ![Grafana](screenshots/grafana-dashboard.png) | ![Telegram](screenshots/telegram-alert.png) |
-
 
 ---
 
@@ -98,8 +88,6 @@ cloud-monitoring-project/
 │
 ├── docker-compose.yml      # Defines all three services & their config
 ├── prometheus.yml          # Scrape jobs, intervals, and targets
-├── screenshots/            # Dashboard & alert screenshots for README
-├── LICENSE
 └── README.md
 ```
 
@@ -122,7 +110,7 @@ Before you begin, make sure you have the following:
 
 1. Sign in to the [AWS EC2 Console](https://console.aws.amazon.com/ec2/).
 2. Click **Launch Instance** and choose **Ubuntu Server 22.04 LTS**.
-3. Select an instance type — `t2.micro` is sufficient for testing (Free Tier eligible).
+3. Select **`t3.micro`** as the instance type.
 4. Under **Security Group**, add the following **inbound rules**:
 
    | Type   | Protocol | Port Range | Source     | Purpose       |
@@ -133,9 +121,9 @@ Before you begin, make sure you have the following:
    | Custom | TCP      | 9100       | 0.0.0.0/0  | Node Exporter |
 
 5. Launch the instance and connect via SSH:
-   ```bash
+```bash
    ssh -i your-key.pem ubuntu@<EC2-PUBLIC-IP>
-   ```
+```
 
 > ⚠️ **Security note:** For production, restrict ports 9090 and 9100 to your IP or a VPN — they should not be publicly exposed.
 
@@ -168,7 +156,7 @@ docker-compose --version
 ### 3. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/cloud-monitoring-project.git
+git clone https://github.com/deathbyginger64/cloud-monitoring-project.git
 cd cloud-monitoring-project
 ```
 
@@ -277,9 +265,9 @@ To monitor **additional hosts**, add more targets:
 2. Navigate to **Connections → Data Sources → Add new data source**.
 3. Select **Prometheus**.
 4. Set the URL to:
-   ```
+```
    http://prometheus:9090
-   ```
+```
 5. Click **Save & Test** — you should see a green "Data source is working" banner.
 
 ---
@@ -355,17 +343,17 @@ You should receive the message in Telegram immediately.
    | URL     | `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/sendMessage`  |
 
 3. Under **Optional Webhook settings → HTTP Headers**, add:
-   ```
+```
    Content-Type: application/json
-   ```
+```
 4. Under **Message body**, paste:
-   ```json
+```json
    {
      "chat_id": "<YOUR_CHAT_ID>",
      "text": "🚨 *ALERT FIRED*\n\n*Rule:* {{ .CommonLabels.alertname }}\n*Summary:* {{ .CommonAnnotations.summary }}\n\n🔥 {{ .Alerts.Firing | len }} alert(s) currently firing.",
      "parse_mode": "Markdown"
    }
-   ```
+```
 5. Click **Test** to send a test message, then **Save contact point**.
 
 ### Step 5 — Link Contact Point to Your Alert
@@ -377,14 +365,14 @@ You should receive the message in Telegram immediately.
 
 ## 📐 Metrics Reference
 
-| Metric                  | PromQL Query                                                                                                             | Description             |
-|-------------------------|--------------------------------------------------------------------------------------------------------------------------|-------------------------|
-| **CPU Usage %**         | `100 - (avg by(instance)(irate(node_cpu_seconds_total{mode="idle"}[1m])) * 100)`                                        | Overall CPU utilisation |
-| **Memory Usage %**      | `(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100`                                               | RAM utilisation         |
-| **Disk Usage %**        | `100 - ((node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100)`              | Root disk usage         |
-| **Network In (bytes/s)**| `irate(node_network_receive_bytes_total[1m])`                                                                           | Inbound network traffic |
-| **Network Out (bytes/s)**| `irate(node_network_transmit_bytes_total[1m])`                                                                         | Outbound network traffic|
-| **System Load (1m)**    | `node_load1`                                                                                                             | 1-minute load average   |
+| Metric                   | PromQL Query                                                                                                        | Description              |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------|--------------------------|
+| **CPU Usage %**          | `100 - (avg by(instance)(irate(node_cpu_seconds_total{mode="idle"}[1m])) * 100)`                                   | Overall CPU utilisation  |
+| **Memory Usage %**       | `(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100`                                          | RAM utilisation          |
+| **Disk Usage %**         | `100 - ((node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100)`         | Root disk usage          |
+| **Network In (bytes/s)** | `irate(node_network_receive_bytes_total[1m])`                                                                       | Inbound network traffic  |
+| **Network Out (bytes/s)**| `irate(node_network_transmit_bytes_total[1m])`                                                                      | Outbound network traffic |
+| **System Load (1m)**     | `node_load1`                                                                                                        | 1-minute load average    |
 
 ---
 
@@ -433,9 +421,9 @@ Look for configuration errors, missing files, or port conflicts.
 
 1. Open `http://<EC2-PUBLIC-IP>:9090/targets`.
 2. If Node Exporter shows as DOWN, confirm the container is running:
-   ```bash
+```bash
    docker ps | grep node-exporter
-   ```
+```
 3. Ensure the service name in `prometheus.yml` (`node-exporter`) exactly matches the Docker Compose service name.
 </details>
 
@@ -526,12 +514,6 @@ helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack
 **Aditya Khandelwal**
 
 If you found this project useful, consider giving it a ⭐ on GitHub — it helps others discover it.
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
